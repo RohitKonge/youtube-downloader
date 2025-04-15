@@ -108,8 +108,8 @@ def download_video():
         'outtmpl': temp_filename,
         'quiet': True,
         'progress_hooks': [progress_hook],
-        'retries': 'infinite',
-        'fragment_retries': 'infinite',
+        'retries': 100,
+        'fragment_retries': 100,
         'concurrent_fragment_downloads': 5,
     }
 
