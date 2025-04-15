@@ -94,13 +94,29 @@ def download_video():
             download_progress[download_id]['progress'] = round(percent, 1)
             download_progress[download_id]['status'] = 'downloading'
 
+            # Print download stats to help debug
+            if 'downloaded_bytes' in d:
+                downloaded_mb = d['downloaded_bytes'] / (1024 * 1024)
+                download_progress[download_id]['downloaded_mb'] = round(
+                    downloaded_mb, 2)
+
+                # If total size is known
+                if 'total_bytes' in d and d['total_bytes'] > 0:
+                    total_mb = d['total_bytes'] / (1024 * 1024)
+                    download_progress[download_id]['total_mb'] = round(
+                        total_mb, 2)
+                elif 'total_bytes_estimate' in d and d['total_bytes_estimate'] > 0:
+                    total_mb = d['total_bytes_estimate'] / (1024 * 1024)
+                    download_progress[download_id]['total_mb'] = round(
+                        total_mb, 2)
+
         elif d['status'] == 'finished':
             download_progress[download_id]['progress'] = 100
             # Now processing (merging audio/video)
             download_progress[download_id]['status'] = 'processing'
 
-    # Set format based on selected resolution
-    format_string = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
+    # Set format based on selected resolution with better fallback for large files
+    format_string = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]/best'
 
     ydl_opts = {
         'format': format_string,
@@ -129,7 +145,13 @@ def download_thread(url, ydl_opts, download_id):
             'retries': 10,          # Retry unsuccessful fragments 10 times
             'fragment_retries': 10,  # Retry on failed fragments
             'file_access_retries': 5,  # Retry on file access issues
-            'extractor_retries': 5  # Retry extractor on issues
+            'extractor_retries': 5,  # Retry extractor on issues
+            'noprogress': False,    # Show progress
+            'nopart': False,        # Use .part files for downloads
+            'continuedl': True,     # Force resume of partially downloaded files
+            # 16 KiB buffer size (increased from default)
+            'buffersize': 16384,
+            'http_chunk_size': 1024000  # 10 MB per chunk - helps with large files
         })
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -162,11 +184,23 @@ def get_download_progress(download_id):
     if download_id not in download_progress:
         return jsonify({'success': False, 'error': 'Download not found'})
 
-    return jsonify({
+    progress_data = {
         'success': True,
         'progress': download_progress[download_id]['progress'],
-        'status': download_progress[download_id]['status']
-    })
+        'status': download_progress[download_id]['status'],
+    }
+
+    # Add additional data if available
+    if 'downloaded_mb' in download_progress[download_id]:
+        progress_data['downloaded_mb'] = download_progress[download_id]['downloaded_mb']
+
+    if 'total_mb' in download_progress[download_id]:
+        progress_data['total_mb'] = download_progress[download_id]['total_mb']
+
+    if 'error_message' in download_progress[download_id]:
+        progress_data['error_message'] = download_progress[download_id]['error_message']
+
+    return jsonify(progress_data)
 
 
 @app.route('/get-file/<download_id>')
