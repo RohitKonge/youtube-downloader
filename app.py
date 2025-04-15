@@ -108,9 +108,6 @@ def download_video():
         'outtmpl': temp_filename,
         'quiet': True,
         'progress_hooks': [progress_hook],
-        'retries': 100,
-        'fragment_retries': 100,
-        'concurrent_fragment_downloads': 5,
     }
 
     # Start download in a separate thread
@@ -213,6 +210,9 @@ def sanitize_filename(filename):
     return sanitized
 
 
+# if __name__ == '__main__':
+#     port = int(os.environ.get('PORT', 5000))
+#     app.run(host='0.0.0.0', port=port)
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', debug=True)
