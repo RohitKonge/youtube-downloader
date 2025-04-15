@@ -2,27 +2,297 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube 1080p Downloader</title>
+  <title>YouTube Video Downloader</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBmaWxsPSIjRUYzRDNEIiBkPSJNNTQ5LjY1NSAxMjQuMDgzYy02LjI4MS0yMy42NS0yNC43ODctNDIuMjc2LTQ4LjI4NC00OC41OTdDNDU4Ljc4MSA2NCAyODggNjQgMjg4IDY0UzExNy4yMiA2NCA3NC42MjkgNzUuNDg2Yy0yMy40OTcgNi4zMjItNDIuMDAzIDI0Ljk0Ny00OC4yODQgNDguNTk3LTExLjQxMiA0Mi44NjctMTEuNDEyIDEzMi4zMDUtMTEuNDEyIDEzMi4zMDVzMCA4OS40MzggMTEuNDEyIDEzMi4zMDVjNi4yODEgMjMuNjUgMjQuNzg3IDQxLjUgNDguMjg0IDQ3LjgyMUM4OC4yMTkgNDQ4IDI4OCA0NDggMjg4IDQ0OHMxNzAuNzggMCAyMTMuMzcxLTExLjQ4NmMyMy40OTctNi4zMjEgNDIuMDAzLTI0LjE3MSA0OC4yODQtNDcuODIxIDExLjQxMi00Mi44NjcgMTEuNDEyLTEzMi4zMDUgMTEuNDEyLTEzMi4zMDVzMC04OS40MzgtMTEuNDEyLTEzMi4zMDV6bS0zMTcuNTEgMjEzLjUwOFYxNzUuMTg1bDE0Mi43MzkgODEuMjA1LTE0Mi43MzkgODEuMjAxeiI+PC9wYXRoPjwvc3ZnPg==" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
-  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-    <h1 class="text-2xl font-bold text-red-600 text-center mb-4">YouTube 1080p Downloader</h1>
-    <form action="/download" method="post" class="flex flex-col gap-4">
-      <input 
-        name="url" 
-        type="text" 
-        placeholder="Enter YouTube URL" 
-        required
-        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-      />
-      <button 
-        type="submit"
-        class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg"
-      >
-        Download 1080p
-      </button>
-    </form>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen py-8">
+  <div class="bg-white p-10 rounded-xl shadow-lg w-full max-w-2xl">
+    <h1 class="text-3xl font-bold text-red-600 text-center mb-3">YouTube Video Downloader</h1>
+    <p class="text-center text-gray-600 text-lg mb-8">Download any YouTube video in 4K, 2K, 1080p, 720p, 480p or 360p resolution for free. No registration required.</p>
+    <div class="flex flex-col gap-6">
+      <div class="flex gap-3">
+        <input 
+          id="video-url"
+          type="text" 
+          placeholder="Enter YouTube URL" 
+          required
+          class="px-5 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 flex-grow"
+        />
+        <button 
+          id="get-video-btn"
+          type="button"
+          class="bg-gray-800 hover:bg-gray-900 text-white font-semibold px-6 py-3 text-lg rounded-lg whitespace-nowrap"
+        >
+          Get Video
+        </button>
+      </div>
+      
+      <div id="video-details" class="hidden flex-col gap-6">
+        <div id="thumbnail-container" class="flex flex-col items-center gap-3 p-4 border border-gray-200 rounded-lg">
+          <img id="thumbnail" src="" alt="Video thumbnail" class="w-full rounded-md shadow-sm">
+          <p id="video-title" class="text-center font-medium text-gray-800 text-lg"></p>
+        </div>
+        
+        <!-- Download buttons -->
+        <div id="download-buttons">
+          <div class="grid grid-cols-2 gap-4">
+            <button 
+              type="button" 
+              class="download-btn bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="2160"
+            >
+              Download 2160p (4K)
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="1440"
+            >
+              Download 1440p (2K)
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="1080"
+            >
+              Download 1080p
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="720"
+            >
+              Download 720p
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="480"
+            >
+              Download 480p
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 text-lg rounded-lg"
+              data-resolution="360"
+            >
+              Download 360p
+            </button>
+          </div>
+        </div>
+        
+        <!-- Download progress section (initially hidden) -->
+        <div id="download-progress-container" class="hidden flex-col gap-3 p-5 border border-gray-200 rounded-lg">
+          <div class="flex justify-between items-center">
+            <span id="download-status" class="text-base font-medium">Preparing download...</span>
+            <span id="download-percentage" class="text-base font-bold">0%</span>
+          </div>
+          
+          <div class="w-full bg-gray-200 rounded-full h-5 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-blue-500 h-5 rounded-full transition-all duration-200" style="width: 0%"></div>
+          </div>
+          
+          <div id="download-message" class="hidden mt-3 text-center text-base text-gray-600"></div>
+          <div id="download-error" class="hidden text-red-500 text-base mt-3"></div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <script>
+    // Current video URL
+    let currentVideoUrl = '';
+    let downloadId = null;
+    let progressInterval = null;
+    
+    // Get video info when button is clicked
+    document.getElementById('get-video-btn').addEventListener('click', function() {
+      const url = document.getElementById('video-url').value.trim();
+      if (url && (url.includes('youtube.com/') || url.includes('youtu.be/'))) {
+        fetchVideoInfo(url);
+      } else {
+        alert('Please enter a valid YouTube URL');
+      }
+    });
+    
+    // Add click handlers to all download buttons
+    document.querySelectorAll('.download-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const resolution = this.getAttribute('data-resolution');
+        startDownload(currentVideoUrl, resolution);
+      });
+    });
+
+    function fetchVideoInfo(url) {
+      // Show loading state
+      document.getElementById('get-video-btn').textContent = 'Loading...';
+      document.getElementById('get-video-btn').disabled = true;
+      
+      fetch(`/video-info?url=${encodeURIComponent(url)}`)
+        .then(response => response.json())
+        .then(data => {
+          // Reset button state
+          document.getElementById('get-video-btn').textContent = 'Get Video';
+          document.getElementById('get-video-btn').disabled = false;
+          
+          if (data.success) {
+            // Update video details
+            document.getElementById('thumbnail').src = data.thumbnail;
+            document.getElementById('video-title').textContent = data.title;
+            currentVideoUrl = url;
+            
+            // Show video details section
+            document.getElementById('video-details').classList.remove('hidden');
+            document.getElementById('video-details').classList.add('flex');
+            
+            // Hide progress bar if it was showing from a previous download
+            document.getElementById('download-progress-container').classList.add('hidden');
+            resetProgressBar();
+          } else {
+            alert('Error fetching video information: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching video info:', err);
+          document.getElementById('get-video-btn').textContent = 'Get Video';
+          document.getElementById('get-video-btn').disabled = false;
+          alert('Failed to fetch video information. Please try again.');
+        });
+    }
+    
+    function startDownload(url, resolution) {
+      // Reset download interface
+      resetProgressBar();
+      
+      // Show progress container
+      document.getElementById('download-progress-container').classList.remove('hidden');
+      document.getElementById('download-progress-container').classList.add('flex');
+      
+      // Hide download message and error
+      document.getElementById('download-message').classList.add('hidden');
+      document.getElementById('download-error').classList.add('hidden');
+      
+      // Set initial status
+      document.getElementById('download-status').textContent = 'Starting download...';
+      
+      // Stop any existing progress polling
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+      
+      // Make download request
+      fetch('/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `url=${encodeURIComponent(url)}&resolution=${resolution}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          downloadId = data.download_id;
+          
+          // Start polling for progress
+          progressInterval = setInterval(function() {
+            pollDownloadProgress(downloadId);
+          }, 1000);
+        } else {
+          showDownloadError('Failed to start download: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(err => {
+        console.error('Error starting download:', err);
+        showDownloadError('Failed to start download. Please try again.');
+      });
+    }
+    
+    function pollDownloadProgress(downloadId) {
+      fetch(`/download-progress/${downloadId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            updateProgressBar(data.progress, data.status);
+            
+            // If download is complete or had an error, stop polling
+            if (data.status === 'completed' || data.status === 'error') {
+              clearInterval(progressInterval);
+              
+              if (data.status === 'completed') {
+                // Automatically trigger download
+                triggerDownload(downloadId);
+              } else {
+                showDownloadError('Download failed. Please try again.');
+              }
+            }
+          } else {
+            clearInterval(progressInterval);
+            showDownloadError('Failed to get download status. Please try again.');
+          }
+        })
+        .catch(err => {
+          console.error('Error polling download progress:', err);
+          clearInterval(progressInterval);
+          showDownloadError('Failed to get download status. Please try again.');
+        });
+    }
+    
+    function updateProgressBar(progress, status) {
+      // Update progress bar width
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      // Update percentage text
+      document.getElementById('download-percentage').textContent = `${progress}%`;
+      
+      // Update status message
+      let statusMessage = 'Downloading...';
+      if (status === 'starting') {
+        statusMessage = 'Starting download...';
+      } else if (status === 'processing') {
+        statusMessage = 'Processing video...';
+      } else if (status === 'completed') {
+        statusMessage = 'Download complete!';
+      } else if (status === 'error') {
+        statusMessage = 'Download failed!';
+      }
+      
+      document.getElementById('download-status').textContent = statusMessage;
+    }
+    
+    function triggerDownload(downloadId) {
+      // Show a message that download is starting
+      const messageElement = document.getElementById('download-message');
+      messageElement.textContent = 'Your download is starting automatically...';
+      messageElement.classList.remove('hidden');
+      
+      // Create a hidden link and click it
+      const downloadUrl = `/get-file/${downloadId}`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = ''; // Let the server decide the filename
+      document.body.appendChild(link);
+      link.click();
+      
+      // Remove the link element
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+    }
+    
+    function showDownloadError(message) {
+      const errorElement = document.getElementById('download-error');
+      errorElement.textContent = message;
+      errorElement.classList.remove('hidden');
+    }
+    
+    function resetProgressBar() {
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('download-percentage').textContent = '0%';
+      document.getElementById('download-status').textContent = 'Preparing download...';
+      document.getElementById('download-message').classList.add('hidden');
+      document.getElementById('download-error').classList.add('hidden');
+    }
+  </script>
 </body>
 </html>
