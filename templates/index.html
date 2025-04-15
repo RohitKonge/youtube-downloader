@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube 1080p Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+  <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-red-600 text-center mb-4">YouTube 1080p Downloader</h1>
+    <form action="/download" method="post" class="flex flex-col gap-4">
+      <input 
+        name="url" 
+        type="text" 
+        placeholder="Enter YouTube URL" 
+        required
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+      />
+      <button 
+        type="submit"
+        class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg"
+      >
+        Download 1080p
+      </button>
+    </form>
+  </div>
+</body>
+</html>
