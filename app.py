@@ -123,6 +123,15 @@ def download_video():
 
 def download_thread(url, ydl_opts, download_id):
     try:
+        # Add increased socket timeout and fragment retries for large files
+        ydl_opts.update({
+            'socket_timeout': 30000,  # 5 minutes socket timeout
+            'retries': 10,          # Retry unsuccessful fragments 10 times
+            'fragment_retries': 10,  # Retry on failed fragments
+            'file_access_retries': 5,  # Retry on file access issues
+            'extractor_retries': 5  # Retry extractor on issues
+        })
+
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
