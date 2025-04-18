@@ -30,7 +30,12 @@ def video_info():
         return jsonify({'success': False, 'error': 'Invalid YouTube URL'})
 
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        # Add cookies file to options
+        ydl_opts = {
+            'quiet': True,
+            'cookiefile': 'cookies.txt'
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
 
         return jsonify({
