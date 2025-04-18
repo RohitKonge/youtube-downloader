@@ -53,76 +53,94 @@ def video_info():
 @app.route('/download', methods=['POST'])
 def download_video():
     url = request.form['url']
-    # Default to 1080p if not specified
     resolution = request.form.get('resolution', '1080')
 
     download_id = str(uuid.uuid4())
     temp_filename = f"{download_id}.mp4"
 
-    # Get video title for final filename
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': 'cookies.txt'}) as ydl:
             info = ydl.extract_info(url, download=False)
             video_title = info.get('title', 'video')
-    except:
-        video_title = 'video'
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
-    # Sanitize the title to create a valid filename
     video_title = sanitize_filename(video_title)
-
-    # Ensure the filename isn't too long
     if len(video_title) > 100:
         video_title = video_title[:100]
 
-    # Add resolution to the filename
     final_filename = f"{video_title}_{resolution}p.mp4"
 
-    # Set download progress to 0
+    # Initialize progress tracking
     download_progress[download_id] = {
         'progress': 0,
         'status': 'starting',
         'file_path': temp_filename,
         'title': video_title,
-        'final_filename': final_filename
+        'final_filename': final_filename,
+        'start_time': time.time()
     }
 
-    # Define progress hook
     def progress_hook(d):
         if d['status'] == 'downloading':
-            # Calculate percentage
-            if 'total_bytes' in d and d['total_bytes'] > 0:
-                percent = d['downloaded_bytes'] / d['total_bytes'] * 100
-            elif 'total_bytes_estimate' in d and d['total_bytes_estimate'] > 0:
-                percent = d['downloaded_bytes'] / \
-                    d['total_bytes_estimate'] * 100
-            else:
-                percent = 0
+            try:
+                if 'total_bytes' in d and d['total_bytes'] > 0:
+                    percent = d['downloaded_bytes'] / d['total_bytes'] * 100
+                elif 'total_bytes_estimate' in d and d['total_bytes_estimate'] > 0:
+                    percent = d['downloaded_bytes'] / \
+                        d['total_bytes_estimate'] * 100
+                else:
+                    percent = 0
 
-            download_progress[download_id]['progress'] = round(percent, 1)
-            download_progress[download_id]['status'] = 'downloading'
+                # Update progress
+                current_time = time.time()
+                if download_id in download_progress:
+                    download_progress[download_id].update({
+                        'progress': round(percent, 1),
+                        'status': 'downloading',
+                        'last_update': current_time,
+                        'speed': d.get('speed', 0),
+                        'eta': d.get('eta', 0)
+                    })
+
+                    # Check for timeout (5 minutes without progress)
+                    if current_time - download_progress[download_id].get('last_update', current_time) > 300:
+                        raise Exception(
+                            "Download timeout - no progress for 5 minutes")
+
+            except Exception as e:
+                download_progress[download_id]['status'] = 'error'
+                download_progress[download_id]['error_message'] = str(e)
 
         elif d['status'] == 'finished':
-            download_progress[download_id]['progress'] = 100
-            # Now processing (merging audio/video)
-            download_progress[download_id]['status'] = 'processing'
+            if download_id in download_progress:
+                download_progress[download_id].update({
+                    'progress': 100,
+                    'status': 'processing'
+                })
 
-    # Set format based on selected resolution
+    # Configure yt-dlp with optimized settings
     format_string = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
-
     ydl_opts = {
         'format': format_string,
         'merge_output_format': 'mp4',
         'outtmpl': temp_filename,
         'quiet': True,
         'progress_hooks': [progress_hook],
-        'cookiefile': 'cookies.txt'
+        'cookiefile': 'cookies.txt',
+        'fragment_retries': 10,
+        'retries': 10,
+        'file_access_retries': 10,
+        'buffersize': 1024 * 1024,  # 1MB buffer
+        'http_chunk_size': 1024 * 1024,  # 1MB chunks
     }
 
-    # Start download in a separate thread
-    threading.Thread(target=download_thread, args=(
-        url, ydl_opts, download_id)).start()
+    # Start download in a separate thread with timeout handling
+    thread = threading.Thread(target=download_thread,
+                              args=(url, ydl_opts, download_id))
+    thread.daemon = True
+    thread.start()
 
-    # Return the download ID so the frontend can poll for progress
     return jsonify({
         'success': True,
         'download_id': download_id
@@ -134,12 +152,11 @@ def download_thread(url, ydl_opts, download_id):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # Download and processing completed
         download_progress[download_id]['status'] = 'completed'
 
-        # Auto-cleanup after 10 minutes
+        # Cleanup after 10 minutes
         def cleanup_download():
-            time.sleep(600)  # 10 minutes
+            time.sleep(600)
             if download_id in download_progress:
                 try:
                     file_path = download_progress[download_id]['file_path']
@@ -149,11 +166,22 @@ def download_thread(url, ydl_opts, download_id):
                 except:
                     pass
 
-        threading.Thread(target=cleanup_download).start()
+        cleanup_thread = threading.Thread(target=cleanup_download)
+        cleanup_thread.daemon = True
+        cleanup_thread.start()
 
     except Exception as e:
-        download_progress[download_id]['status'] = 'error'
-        download_progress[download_id]['error_message'] = str(e)
+        if download_id in download_progress:
+            download_progress[download_id]['status'] = 'error'
+            download_progress[download_id]['error_message'] = str(e)
+
+        # Cleanup failed download
+        try:
+            file_path = download_progress[download_id]['file_path']
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except:
+            pass
 
 
 @app.route('/download-progress/<download_id>')
