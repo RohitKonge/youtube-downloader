@@ -2,34 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>YouTube Video Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Youtube Video Downloader | Free Online Video Downloads</title>
+  <meta name="description" content="Youtube Video Downloader offers fast, secure video downloads with support for multiple formats and resolutions up to 4K. No registration required. Download videos easily on any device.">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NzYgNTEyIj48cGF0aCBmaWxsPSIjRUYzRDNEIiBkPSJNNTQ5LjY1NSAxMjQuMDgzYy02LjI4MS0yMy42NS0yNC43ODctNDIuMjc2LTQ4LjI4NC00OC41OTdDNDU4Ljc4MSA2NCAyODggNjQgMjg4IDY0UzExNy4yMiA2NCA3NC42MjkgNzUuNDg2Yy0yMy40OTcgNi4zMjItNDIuMDAzIDI0Ljk0Ny00OC4yODQgNDguNTk3LTExLjQxMiA0Mi44NjctMTEuNDEyIDEzMi4zMDUtMTEuNDEyIDEzMi4zMDVzMCA4OS40MzggMTEuNDEyIDEzMi4zMDVjNi4yODEgMjMuNjUgMjQuNzg3IDQxLjUgNDguMjg0IDQ3LjgyMUM4OC4yMTkgNDQ4IDI4OCA0NDggMjg4IDQ0OHMxNzAuNzggMCAyMTMuMzcxLTExLjQ4NmMyMy40OTctNi4zMjEgNDIuMDAzLTI0LjE3MSA0OC4yODQtNDcuODIxIDExLjQxMi00Mi44NjcgMTEuNDEyLTEzMi4zMDUgMTEuNDEyLTEzMi4zMDVzMC04OS40MzgtMTEuNDEyLTEzMi4zMDV6bS0zMTcuNTEgMjEzLjUwOFYxNzUuMTg1bDE0Mi43MzkgODEuMjA1LTE0Mi43MzkgODEuMjAxeiI+PC9wYXRoPjwvc3ZnPg==" type="image/svg+xml">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex justify-center items-center min-h-screen py-8">
-  <div class="bg-white p-10 rounded-xl shadow-lg w-full max-w-2xl">
-    <h1 class="text-3xl font-bold text-red-600 text-center mb-3">YouTube Video Downloader</h1>
-    <p class="text-center text-gray-600 text-lg mb-8">Download any YouTube video in 4K, 2K, 1080p, 720p, 480p or 360p resolution for free. No registration required.</p>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800 flex justify-center items-center min-h-screen py-8">
+  <div class="w-full max-w-3xl px-4">
+    <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-center mb-3">Youtube Video Downloader</h1>
+    
     <div class="flex flex-col gap-6">
-      <div class="flex gap-3">
-        <input 
-          id="video-url"
-          type="text" 
-          placeholder="Enter YouTube URL" 
-          required
-          class="px-5 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 flex-grow"
-        />
-        <button 
-          id="get-video-btn"
-          type="button"
-          class="bg-gray-800 hover:bg-gray-900 text-white font-semibold px-6 py-3 text-lg rounded-lg whitespace-nowrap"
-        >
-          Get Video
-        </button>
+      <!-- URL Input and Fetch Button -->
+      <div class="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex gap-3">
+          <input 
+            id="video-url"
+            type="text" 
+            placeholder="Paste video URL here..." 
+            required
+            class="px-5 py-3 text-lg bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 flex-grow text-gray-700 placeholder-gray-400"
+          />
+          <button 
+            id="get-video-btn"
+            type="button"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 text-lg rounded-lg whitespace-nowrap transition-all duration-200"
+          >
+            Fetch Video
+          </button>
+        </div>
       </div>
-      
+
+      <!-- Video Details Section (Initially Hidden) -->
       <div id="video-details" class="hidden flex-col gap-6">
-        <div id="thumbnail-container" class="flex flex-col items-center gap-3 p-4 border border-gray-200 rounded-lg">
+        <div id="thumbnail-container" class="flex flex-col items-center gap-3 p-4 bg-white/90 border border-gray-200 rounded-lg shadow-sm">
           <img id="thumbnail" src="" alt="Video thumbnail" class="w-full rounded-md shadow-sm">
           <p id="video-title" class="text-center font-medium text-gray-800 text-lg"></p>
         </div>
@@ -37,44 +43,52 @@
         <!-- Download buttons -->
         <div id="download-buttons">
           <div class="grid grid-cols-2 gap-4">
+            <!-- 8K Button - Centered -->
             <button 
               type="button" 
-              class="download-btn bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg col-span-2 transition-all duration-200"
+              data-resolution="4320"
+            >
+              Download 4320p (8K)
+            </button>
+            <button 
+              type="button" 
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="2160"
             >
               Download 2160p (4K)
             </button>
             <button 
               type="button" 
-              class="download-btn bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="1440"
             >
               Download 1440p (2K)
             </button>
             <button 
               type="button" 
-              class="download-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="1080"
             >
               Download 1080p
             </button>
             <button 
               type="button" 
-              class="download-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="720"
             >
               Download 720p
             </button>
             <button 
               type="button" 
-              class="download-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="480"
             >
               Download 480p
             </button>
             <button 
               type="button" 
-              class="download-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 text-lg rounded-lg"
+              class="download-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg rounded-lg transition-all duration-200"
               data-resolution="360"
             >
               Download 360p
@@ -82,8 +96,8 @@
           </div>
         </div>
         
-        <!-- Download progress section (initially hidden) -->
-        <div id="download-progress-container" class="hidden flex-col gap-3 p-5 border border-gray-200 rounded-lg">
+        <!-- Download progress section -->
+        <div id="download-progress-container" class="hidden flex-col gap-3 p-5 bg-white/90 border border-gray-200 rounded-lg shadow-sm">
           <div class="flex justify-between items-center">
             <span id="download-status" class="text-base font-medium">Preparing download...</span>
             <span id="download-percentage" class="text-base font-bold">0%</span>
@@ -97,201 +111,355 @@
           <div id="download-error" class="hidden text-red-500 text-base mt-3"></div>
         </div>
       </div>
+
+      <!-- Welcome Text -->
+      <div class="text-gray-600 space-y-4">
+        <p class="text-center">Welcome to Youtube Video Downloader, your premier destination for seamless video downloads. Our platform specializes in high-quality video extraction across multiple platforms, offering various formats from HD to 4K resolution.</p>
+        
+        <p class="text-center">We understand the importance of having your favorite content available offline. That's why we've created this powerful yet simple tool that puts you in control of your viewing experience.</p>
+        
+        <p class="text-center">Choose from a variety of quality options and formats, with no technical expertise required. Youtube Video Downloader works across all modern devices and requires no software installation or registration.</p>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <!-- Smart Downloads -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 16l-4-4h8l-4 4zm0-12v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-blue-600">Smart Downloads</h3>
+            <p class="text-gray-600">Intelligent download management ensures optimal speed and reliability, with automatic quality selection based on your connection.</p>
+          </div>
+        </div>
+
+        <!-- Intuitive Experience -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-purple-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-purple-600">Intuitive Experience</h3>
+            <p class="text-gray-600">Clean, modern interface designed for simplicity. Just paste your URL and choose your preferred format - we handle the rest.</p>
+          </div>
+        </div>
+
+        <!-- Crystal Clear Quality -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-blue-600">Crystal Clear Quality</h3>
+            <p class="text-gray-600">Download in resolutions up to 4K UHD. Experience your content exactly as intended, with no quality loss.</p>
+          </div>
+        </div>
+
+        <!-- Format Freedom -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-purple-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-purple-600">Format Freedom</h3>
+            <p class="text-gray-600">Choose from MP4, WebM, or audio-only formats. Perfect for any device or use case, from mobile to desktop.</p>
+          </div>
+        </div>
+
+        <!-- Universal Access -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-blue-600">Universal Access</h3>
+            <p class="text-gray-600">Works seamlessly across all modern browsers and devices. No app installation or special setup required.</p>
+          </div>
+        </div>
+
+        <!-- Privacy First -->
+        <div class="p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex flex-col items-center text-center">
+            <svg class="w-12 h-12 text-purple-600 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <h3 class="text-xl font-semibold mb-2 text-purple-600">Privacy First</h3>
+            <p class="text-gray-600">Your privacy matters. No registration required, no data collection, and no tracking. Just pure functionality.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to Download Section -->
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-center mb-8">How to Use Youtube Video Downloader</h2>
+        
+        <div class="space-y-6">
+          <!-- Step 1 -->
+          <div class="flex gap-6 items-start p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
+                1
+              </div>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2 text-blue-600">Find Your Video</h3>
+              <p class="text-gray-600">Copy the URL of your desired video and paste it into Youtube Video Downloader's input field. Click "Fetch Video" to begin the process.</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="flex gap-6 items-start p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
+                2
+              </div>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2 text-purple-600">Choose Your Quality</h3>
+              <p class="text-gray-600">Select your preferred quality and format from the available options. We'll show you what's available for your video.</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex gap-6 items-start p-6 rounded-xl bg-white/80 border border-gray-200 shadow-sm">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold text-xl">
+                3
+              </div>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold mb-2 text-blue-600">Download & Enjoy</h3>
+              <p class="text-gray-600">Click download and wait for the process to complete. Your file will be ready to save to your device in moments.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-center mb-8">Common Questions</h2>
+        
+        <div class="space-y-4">
+          <!-- Question 1 -->
+          <div class="rounded-xl bg-white/80 border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-blue-600 mb-3">What makes Youtube Video Downloader different?</h3>
+              <p class="text-gray-600">Youtube Video Downloader focuses on simplicity and efficiency. We offer high-speed downloads, multiple quality options, and a clean interface - all without requiring registration or software installation.</p>
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="rounded-xl bg-white/80 border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-purple-600 mb-3">Are there any download limits?</h3>
+              <p class="text-gray-600">No! Youtube Video Downloader is completely free and has no artificial limits on downloads. The only constraint is your internet connection speed.</p>
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="rounded-xl bg-white/80 border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-blue-600 mb-3">What formats are supported?</h3>
+              <p class="text-gray-600">We support a wide range of formats including MP4, WebM, and various audio formats. Quality options range from standard definition up to 4K UHD where available.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center text-gray-500 text-sm py-6 mt-16 border-t border-gray-200">
+        <p>© 2023-2025 Youtube Video Downloader - Created with ♥ for content enthusiasts</p>
+        <p class="mt-2">This tool is for personal use only. Please respect content creators and copyright laws.</p>
+      </div>
     </div>
   </div>
 
   <script>
-    // Current video URL
-    let currentVideoUrl = '';
-    let downloadId = null;
-    let progressInterval = null;
-    
-    // Get video info when button is clicked
-    document.getElementById('get-video-btn').addEventListener('click', function() {
-      const url = document.getElementById('video-url').value.trim();
-      if (url && (url.includes('youtube.com/') || url.includes('youtu.be/'))) {
-        fetchVideoInfo(url);
-      } else {
-        alert('Please enter a valid YouTube URL');
+    let currentDownloadId = null;
+    let currentInterval = null;
+
+    async function cancelCurrentDownload() {
+      if (currentDownloadId) {
+        try {
+          await fetch(`/cancel-download/${currentDownloadId}`, {
+            method: 'POST'
+          });
+          if (currentInterval) {
+            clearInterval(currentInterval);
+            currentInterval = null;
+          }
+          currentDownloadId = null;
+          
+          // Hide progress container
+          const progressContainer = document.getElementById('download-progress-container');
+          progressContainer.classList.add('hidden');
+          progressContainer.classList.remove('flex');
+        } catch (error) {
+          console.error('Error cancelling download:', error);
+        }
+      }
+    }
+
+    // Add page unload handler to cancel downloads
+    window.addEventListener('beforeunload', () => {
+      if (currentDownloadId) {
+        navigator.sendBeacon(`/cancel-download/${currentDownloadId}`);
       }
     });
-    
-    // Add click handlers to all download buttons
+
+    document.getElementById('get-video-btn').addEventListener('click', async function() {
+      // Cancel any ongoing download when fetching a new video
+      await cancelCurrentDownload();
+
+      const urlInput = document.getElementById('video-url');
+      const url = urlInput.value.trim();
+      
+      if (!url) {
+        alert('Please enter a video URL');
+        return;
+      }
+
+      // Show loading state
+      const button = this;
+      const originalText = button.textContent;
+      button.textContent = 'Loading...';
+      button.disabled = true;
+
+      try {
+        const response = await fetch('/get_download_link', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        // Show video details section
+        const videoDetails = document.getElementById('video-details');
+        videoDetails.classList.remove('hidden');
+        videoDetails.classList.add('flex');
+
+        // Update thumbnail and title if available
+        if (data.thumbnail) {
+          document.getElementById('thumbnail').src = data.thumbnail;
+        }
+        if (data.title) {
+          document.getElementById('video-title').textContent = data.title;
+        }
+
+        // Scroll to video details
+        videoDetails.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (error) {
+        alert('Error: ' + (error.message || 'Failed to fetch video information'));
+      } finally {
+        // Reset button state
+        button.textContent = originalText;
+        button.disabled = false;
+      }
+    });
+
+    // Add click handlers to download buttons
     document.querySelectorAll('.download-btn').forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', async function() {
+        // Cancel any ongoing download when starting a new one
+        await cancelCurrentDownload();
+
         const resolution = this.getAttribute('data-resolution');
-        startDownload(currentVideoUrl, resolution);
+        const url = document.getElementById('video-url').value.trim();
+        
+        if (!url) {
+          alert('Please enter a video URL first');
+          return;
+        }
+
+        try {
+          const response = await fetch('/download', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `url=${encodeURIComponent(url)}&resolution=${resolution}`
+          });
+
+          const data = await response.json();
+          
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          // Store the new download ID
+          currentDownloadId = data.download_id;
+
+          // Show progress container
+          const progressContainer = document.getElementById('download-progress-container');
+          progressContainer.classList.remove('hidden');
+          progressContainer.classList.add('flex');
+          
+          // Start progress polling
+          pollDownloadProgress(data.download_id);
+
+        } catch (error) {
+          alert('Error: ' + (error.message || 'Failed to start download'));
+        }
       });
     });
 
-    function fetchVideoInfo(url) {
-      // Show loading state
-      document.getElementById('get-video-btn').textContent = 'Loading...';
-      document.getElementById('get-video-btn').disabled = true;
-      
-      fetch(`/video-info?url=${encodeURIComponent(url)}`)
-        .then(response => response.json())
-        .then(data => {
-          // Reset button state
-          document.getElementById('get-video-btn').textContent = 'Get Video';
-          document.getElementById('get-video-btn').disabled = false;
-          
-          if (data.success) {
-            // Update video details
-            document.getElementById('thumbnail').src = data.thumbnail;
-            document.getElementById('video-title').textContent = data.title;
-            currentVideoUrl = url;
-            
-            // Show video details section
-            document.getElementById('video-details').classList.remove('hidden');
-            document.getElementById('video-details').classList.add('flex');
-            
-            // Hide progress bar if it was showing from a previous download
-            document.getElementById('download-progress-container').classList.add('hidden');
-            resetProgressBar();
-          } else {
-            alert('Error fetching video information: ' + (data.error || 'Unknown error'));
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching video info:', err);
-          document.getElementById('get-video-btn').textContent = 'Get Video';
-          document.getElementById('get-video-btn').disabled = false;
-          alert('Failed to fetch video information. Please try again.');
-        });
-    }
-    
-    function startDownload(url, resolution) {
-      // Reset download interface
-      resetProgressBar();
-      
-      // Show progress container
-      document.getElementById('download-progress-container').classList.remove('hidden');
-      document.getElementById('download-progress-container').classList.add('flex');
-      
-      // Hide download message and error
-      document.getElementById('download-message').classList.add('hidden');
-      document.getElementById('download-error').classList.add('hidden');
-      
-      // Set initial status
-      document.getElementById('download-status').textContent = 'Starting download...';
-      
-      // Stop any existing progress polling
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
-      
-      // Make download request
-      fetch('/download', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `url=${encodeURIComponent(url)}&resolution=${resolution}`
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          downloadId = data.download_id;
-          
-          // Start polling for progress
-          progressInterval = setInterval(function() {
-            pollDownloadProgress(downloadId);
-          }, 1000);
-        } else {
-          showDownloadError('Failed to start download: ' + (data.error || 'Unknown error'));
-        }
-      })
-      .catch(err => {
-        console.error('Error starting download:', err);
-        showDownloadError('Failed to start download. Please try again.');
-      });
-    }
-    
     function pollDownloadProgress(downloadId) {
-      fetch(`/download-progress/${downloadId}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            updateProgressBar(data.progress, data.status);
-            
-            // If download is complete or had an error, stop polling
-            if (data.status === 'completed' || data.status === 'error') {
-              clearInterval(progressInterval);
-              
-              if (data.status === 'completed') {
-                // Automatically trigger download
-                triggerDownload(downloadId);
-              } else {
-                showDownloadError('Download failed. Please try again.');
-              }
-            }
-          } else {
-            clearInterval(progressInterval);
-            showDownloadError('Failed to get download status. Please try again.');
-          }
-        })
-        .catch(err => {
-          console.error('Error polling download progress:', err);
-          clearInterval(progressInterval);
-          showDownloadError('Failed to get download status. Please try again.');
-        });
-    }
-    
-    function updateProgressBar(progress, status) {
-      // Update progress bar width
-      document.getElementById('progress-bar').style.width = `${progress}%`;
-      
-      // Update percentage text
-      document.getElementById('download-percentage').textContent = `${progress}%`;
-      
-      // Update status message
-      let statusMessage = 'Downloading...';
-      if (status === 'starting') {
-        statusMessage = 'Starting download...';
-      } else if (status === 'processing') {
-        statusMessage = 'Processing video...';
-      } else if (status === 'completed') {
-        statusMessage = 'Download complete!';
-      } else if (status === 'error') {
-        statusMessage = 'Download failed!';
+      // Clear any existing polling interval
+      if (currentInterval) {
+        clearInterval(currentInterval);
       }
-      
-      document.getElementById('download-status').textContent = statusMessage;
-    }
-    
-    function triggerDownload(downloadId) {
-      // Show a message that download is starting
-      const messageElement = document.getElementById('download-message');
-      messageElement.textContent = 'Your download is starting automatically...';
-      messageElement.classList.remove('hidden');
-      
-      // Create a hidden link and click it
-      const downloadUrl = `/get-file/${downloadId}`;
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = ''; // Let the server decide the filename
-      document.body.appendChild(link);
-      link.click();
-      
-      // Remove the link element
-      setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
-    }
-    
-    function showDownloadError(message) {
-      const errorElement = document.getElementById('download-error');
-      errorElement.textContent = message;
-      errorElement.classList.remove('hidden');
-    }
-    
-    function resetProgressBar() {
-      document.getElementById('progress-bar').style.width = '0%';
-      document.getElementById('download-percentage').textContent = '0%';
-      document.getElementById('download-status').textContent = 'Preparing download...';
-      document.getElementById('download-message').classList.add('hidden');
-      document.getElementById('download-error').classList.add('hidden');
+
+      currentInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/download-progress/${downloadId}`);
+          const data = await response.json();
+
+          if (!data.success) {
+            throw new Error(data.error || 'Failed to get download status');
+          }
+
+          // Update progress bar
+          const progressBar = document.getElementById('progress-bar');
+          const percentage = document.getElementById('download-percentage');
+          const status = document.getElementById('download-status');
+
+          progressBar.style.width = `${data.progress}%`;
+          percentage.textContent = `${Math.round(data.progress)}%`;
+          status.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+
+          if (data.status === 'completed') {
+            clearInterval(currentInterval);
+            currentInterval = null;
+            currentDownloadId = null;
+            // Trigger file download
+            window.location.href = `/get-file/${downloadId}`;
+          } else if (data.status === 'error' || data.status === 'cancelled') {
+            clearInterval(currentInterval);
+            currentInterval = null;
+            currentDownloadId = null;
+            if (data.status === 'cancelled') {
+              console.log('Download was cancelled');
+            } else {
+              throw new Error('Download failed');
+            }
+          }
+
+        } catch (error) {
+          clearInterval(currentInterval);
+          currentInterval = null;
+          currentDownloadId = null;
+          alert('Error: ' + (error.message || 'Failed to get download status'));
+        }
+      }, 1000);
     }
   </script>
 </body>

@@ -5,13 +5,47 @@ import uuid
 import re
 import threading
 import time
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
-# Global dictionary to track download progress
+# Global dictionary to track download progress and cancel flags
 download_progress = {}
+active_downloads = {}
+
+
+def cancel_active_download(download_id):
+    """Cancel an active download by setting its cancel flag"""
+    if download_id in active_downloads:
+        active_downloads[download_id]['cancel'] = True
+        download_progress[download_id]['status'] = 'cancelled'
+
+
+@app.route('/cancel-download/<download_id>', methods=['POST'])
+def cancel_download(download_id):
+    """API endpoint to cancel a download"""
+    if download_id in download_progress:
+        cancel_active_download(download_id)
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Download not found'})
+
+
+class CancellableYoutubeDL(yt_dlp.YoutubeDL):
+    def __init__(self, download_id, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.download_id = download_id
+
+    def download(self, url_list):
+        try:
+            return super().download(url_list)
+        except Exception as e:
+            if self.download_id in active_downloads and active_downloads[self.download_id]['cancel']:
+                raise Exception('Download cancelled by user')
+            raise e
+
+    def progress_hook(self, d):
+        if self.download_id in active_downloads and active_downloads[self.download_id]['cancel']:
+            raise Exception('Download cancelled by user')
+        super().progress_hook(d)
 
 
 @app.route('/')
@@ -32,12 +66,7 @@ def video_info():
         return jsonify({'success': False, 'error': 'Invalid YouTube URL'})
 
     try:
-        # Add cookies file to options
-        ydl_opts = {
-            'quiet': True,
-            'cookiefile': 'cookies.txt'
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
             info = ydl.extract_info(url, download=False)
 
         return jsonify({
@@ -52,95 +81,91 @@ def video_info():
 
 @app.route('/download', methods=['POST'])
 def download_video():
+    # Cancel any existing downloads for this session
+    session_id = request.cookies.get('session_id')
+    if session_id:
+        for d_id in list(download_progress.keys()):
+            if d_id in active_downloads and active_downloads[d_id].get('session_id') == session_id:
+                cancel_active_download(d_id)
+
     url = request.form['url']
+    # Default to 1080p if not specified
     resolution = request.form.get('resolution', '1080')
 
     download_id = str(uuid.uuid4())
     temp_filename = f"{download_id}.mp4"
 
+    # Get video title for final filename
     try:
-        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': 'cookies.txt'}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
             info = ydl.extract_info(url, download=False)
             video_title = info.get('title', 'video')
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+    except:
+        video_title = 'video'
 
+    # Sanitize the title to create a valid filename
     video_title = sanitize_filename(video_title)
+
+    # Ensure the filename isn't too long
     if len(video_title) > 100:
         video_title = video_title[:100]
 
+    # Add resolution to the filename
     final_filename = f"{video_title}_{resolution}p.mp4"
 
-    # Initialize progress tracking
+    # Set download progress to 0
     download_progress[download_id] = {
         'progress': 0,
         'status': 'starting',
         'file_path': temp_filename,
         'title': video_title,
-        'final_filename': final_filename,
-        'start_time': time.time()
+        'final_filename': final_filename
     }
 
+    active_downloads[download_id] = {
+        'cancel': False,
+        'session_id': session_id
+    }
+
+    # Define progress hook
     def progress_hook(d):
+        if active_downloads[download_id]['cancel']:
+            raise Exception('Download cancelled by user')
+
         if d['status'] == 'downloading':
-            try:
-                if 'total_bytes' in d and d['total_bytes'] > 0:
-                    percent = d['downloaded_bytes'] / d['total_bytes'] * 100
-                elif 'total_bytes_estimate' in d and d['total_bytes_estimate'] > 0:
-                    percent = d['downloaded_bytes'] / \
-                        d['total_bytes_estimate'] * 100
-                else:
-                    percent = 0
+            # Calculate percentage
+            if 'total_bytes' in d and d['total_bytes'] > 0:
+                percent = d['downloaded_bytes'] / d['total_bytes'] * 100
+            elif 'total_bytes_estimate' in d and d['total_bytes_estimate'] > 0:
+                percent = d['downloaded_bytes'] / \
+                    d['total_bytes_estimate'] * 100
+            else:
+                percent = 0
 
-                # Update progress
-                current_time = time.time()
-                if download_id in download_progress:
-                    download_progress[download_id].update({
-                        'progress': round(percent, 1),
-                        'status': 'downloading',
-                        'last_update': current_time,
-                        'speed': d.get('speed', 0),
-                        'eta': d.get('eta', 0)
-                    })
-
-                    # Check for timeout (5 minutes without progress)
-                    if current_time - download_progress[download_id].get('last_update', current_time) > 300:
-                        raise Exception(
-                            "Download timeout - no progress for 5 minutes")
-
-            except Exception as e:
-                download_progress[download_id]['status'] = 'error'
-                download_progress[download_id]['error_message'] = str(e)
+            download_progress[download_id]['progress'] = round(percent, 1)
+            download_progress[download_id]['status'] = 'downloading'
 
         elif d['status'] == 'finished':
-            if download_id in download_progress:
-                download_progress[download_id].update({
-                    'progress': 100,
-                    'status': 'processing'
-                })
+            download_progress[download_id]['progress'] = 100
+            # Now processing (merging audio/video)
+            download_progress[download_id]['status'] = 'processing'
 
-    # Configure yt-dlp with optimized settings
+    # Set format based on selected resolution
     format_string = f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
+
     ydl_opts = {
         'format': format_string,
         'merge_output_format': 'mp4',
         'outtmpl': temp_filename,
         'quiet': True,
         'progress_hooks': [progress_hook],
-        'cookiefile': 'cookies.txt',
-        'fragment_retries': 10,
-        'retries': 10,
-        'file_access_retries': 10,
-        'buffersize': 1024 * 1024,  # 1MB buffer
-        'http_chunk_size': 1024 * 1024,  # 1MB chunks
     }
 
-    # Start download in a separate thread with timeout handling
-    thread = threading.Thread(target=download_thread,
-                              args=(url, ydl_opts, download_id))
-    thread.daemon = True
-    thread.start()
+    # Start download in a separate thread
+    threading.Thread(target=download_thread, args=(
+        url, ydl_opts, download_id)).start()
 
+    # Return the download ID so the frontend can poll for progress
     return jsonify({
         'success': True,
         'download_id': download_id
@@ -149,33 +174,45 @@ def download_video():
 
 def download_thread(url, ydl_opts, download_id):
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with CancellableYoutubeDL(download_id, ydl_opts) as ydl:
             ydl.download([url])
 
-        download_progress[download_id]['status'] = 'completed'
+        if not active_downloads[download_id]['cancel']:
+            # Download and processing completed
+            download_progress[download_id]['status'] = 'completed'
 
-        # Cleanup after 10 minutes
-        def cleanup_download():
-            time.sleep(600)
-            if download_id in download_progress:
-                try:
-                    file_path = download_progress[download_id]['file_path']
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
+            # Auto-cleanup after 10 minutes
+            def cleanup_download():
+                time.sleep(600)  # 10 minutes
+                if download_id in download_progress:
+                    try:
+                        file_path = download_progress[download_id]['file_path']
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                        del download_progress[download_id]
+                        del active_downloads[download_id]
+                    except:
+                        pass
+
+            threading.Thread(target=cleanup_download).start()
+        else:
+            # Clean up cancelled download immediately
+            try:
+                file_path = download_progress[download_id]['file_path']
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except:
+                pass
+            finally:
+                if download_id in download_progress:
                     del download_progress[download_id]
-                except:
-                    pass
-
-        cleanup_thread = threading.Thread(target=cleanup_download)
-        cleanup_thread.daemon = True
-        cleanup_thread.start()
+                if download_id in active_downloads:
+                    del active_downloads[download_id]
 
     except Exception as e:
-        if download_id in download_progress:
-            download_progress[download_id]['status'] = 'error'
-            download_progress[download_id]['error_message'] = str(e)
-
-        # Cleanup failed download
+        download_progress[download_id]['status'] = 'error'
+        download_progress[download_id]['error_message'] = str(e)
+        # Clean up failed download
         try:
             file_path = download_progress[download_id]['file_path']
             if os.path.exists(file_path):
@@ -218,6 +255,26 @@ def get_file(download_id):
     return send_file(file_path, as_attachment=True, download_name=filename)
 
 
+@app.route('/get_download_link', methods=['POST'])
+def get_download_link():
+    data = request.json
+    url = data.get('url')
+
+    if not url:
+        return jsonify({'error': 'No URL provided'}), 400
+
+    try:
+        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': 'cookies.txt'}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return jsonify({
+                'title': info.get('title', 'Video'),
+                'thumbnail': info.get('thumbnail', ''),
+                'url': info.get('url', '')
+            })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 def extract_video_id(url):
     """Extract the video ID from a YouTube URL."""
     # YouTube URL patterns
@@ -246,32 +303,9 @@ def sanitize_filename(filename):
     return sanitized
 
 
-@app.route('/get_download_link', methods=['POST'])
-def get_download_link():
-    data = request.json
-    url = data.get('url')
-
-    if not url:
-        return jsonify({'error': 'No URL provided'}), 400
-
-    ydl_opts = {
-        'quiet': True,
-        'format': '18/best',
-        'skip_download': True,
-        'forceurl': True,
-        'forcejson': True,
-        'cookiefile': 'cookies.txt'  # Add cookies file for authentication
-    }
-
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            download_url = info['url']
-            title = info.get('title', 'Video')
-            return jsonify({'url': download_url, 'title': title})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
+# if __name__ == '__main__':
+#     port = int(os.environ.get('PORT', 5000))
+#     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
