@@ -66,7 +66,7 @@ def video_info():
         return jsonify({'success': False, 'error': 'Invalid YouTube URL'})
 
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': 'cookies.txt'}) as ydl:
             info = ydl.extract_info(url, download=False)
 
         return jsonify({
@@ -97,7 +97,7 @@ def download_video():
 
     # Get video title for final filename
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet': True, 'cookiefile': 'cookies.txt'}) as ydl:
             info = ydl.extract_info(url, download=False)
             video_title = info.get('title', 'video')
     except:
@@ -159,6 +159,7 @@ def download_video():
         'outtmpl': temp_filename,
         'quiet': True,
         'progress_hooks': [progress_hook],
+        'cookiefile': 'cookies.txt'  # Add cookie file support
     }
 
     # Start download in a separate thread
