@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://ytvideodownloader.diy/sitemap.xml
+Crawl-delay: 1
